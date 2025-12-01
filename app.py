@@ -121,7 +121,7 @@ if search_name and hmdb_df is not None:
         if search_name.lower() == "lactate" and lactate_df is not None:
             st.subheader(f"📊 Spectrum for '{search_name}'")
             # Example zoom regions (adjust to your peak ppm ranges)
-            zoom_regions = [(4.04, 4.20), (1.30, 1.40)]
+            zoom_regions = [(4.04, 4.20), (1.25, 1.38)]
             plot_spectrum(lactate_df, title=f"{search_name} Spectrum", zoom_regions=zoom_regions)
     else:
         st.warning(f"No metabolite found with the name '{search_name}'.")
