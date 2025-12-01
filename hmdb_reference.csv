@@ -1,0 +1,4 @@
+Name,HMDB_ID,ppm_list,multiplicity_list,J_list
+Lactate,HMDB00190,"1.330;4.111","d;q","7;7"
+Alanine,HMDB00161,"1.480;3.780","d;q","7;7"
+Glucose,HMDB00221,"3.220;3.410;3.520;3.700","m;m;m;m","0;0;0;0"
