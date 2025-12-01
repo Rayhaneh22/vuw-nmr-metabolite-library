@@ -100,21 +100,26 @@ if search_name and hmdb_df is not None:
             st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
             st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 
-        # Plot lactate spectrum if searched
-        # Plot lactate spectrum if searched
+# -------------------------
+# Lactate formula + spectrum
+# -------------------------
 if search_name.lower() == "lactate" and lactate_df is not None:
     st.subheader(f"📊 Lactate Formula & Spectrum")
 
-    # Create two columns
-    col1, col2 = st.columns([1, 2])  # formula smaller, spectrum larger
+    # Create two columns (formula smaller, spectrum larger)
+    col1, col2 = st.columns([1, 2])
 
-    # Column 1: Formula image
+    # Column 1: Formula image (safe check)
     with col1:
-        st.image(
-            "Data/lactate_formula.png",
-            caption="Lactate (C3H6O3)",
-            use_column_width=True
-        )
+        img_path = "Data/lactate_formula.png"  # check exact filename and case
+        if os.path.exists(img_path):
+            st.image(
+                img_path,
+                caption="Lactate (C3H6O3)",
+                use_column_width=True
+            )
+        else:
+            st.warning(f"⚠️ Formula image not found at '{img_path}'")
 
     # Column 2: Interactive Plotly spectrum
     with col2:
