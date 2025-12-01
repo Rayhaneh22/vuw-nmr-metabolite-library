@@ -101,14 +101,21 @@ if search_name and hmdb_df is not None:
             st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 
         # Plot lactate spectrum if searched
-        if search_name.lower() == "lactate" and lactate_df is not None:
-            st.subheader(f"📊 Interactive Spectrum for '{search_name}'")
-            st.image("Data/Lactate_Formula.png", caption=f"Lactate (C3H6O3)", use_column_width=True)
-            
-            st.subheader(f"📊 Interactive Spectrum for '{search_name}'")
-            plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
+        # Plot lactate spectrum if searched
+if search_name.lower() == "lactate" and lactate_df is not None:
+    st.subheader(f"📊 Lactate Formula & Spectrum")
 
-    else:
-        st.warning(f"No metabolite found with the name '{search_name}'.")
-elif search_name:
-    st.warning("⚠️ No local HMDB file found. Add `hmdb_reference.csv` to the app folder.")
+    # Create two columns
+    col1, col2 = st.columns([1, 2])  # formula smaller, spectrum larger
+
+    # Column 1: Formula image
+    with col1:
+        st.image(
+            "Data/lactate_formula.png",
+            caption="Lactate (C3H6O3)",
+            use_column_width=True
+        )
+
+    # Column 2: Interactive Plotly spectrum
+    with col2:
+        plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
