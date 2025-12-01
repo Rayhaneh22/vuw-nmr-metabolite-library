@@ -20,7 +20,7 @@ hmdb_df = load_hmdb()
 # LOAD LACTATE CSV
 # ==========================
 @st.cache_data
-def load_lactate(csv_path: str = "data/lactate.csv") -> pd.DataFrame | None:
+def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
     """Load lactate peak data."""
     try:
         df = pd.read_csv(csv_path)
