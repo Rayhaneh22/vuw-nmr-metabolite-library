@@ -1,82 +1,84 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+import os
 
 # ==========================
 # LOAD HMDB REFERENCE TABLE
 # ==========================
 @st.cache_data
 def load_hmdb(csv_path: str = "hmdb_reference.csv") -> pd.DataFrame | None:
-    """Load HMDB reference table as a DataFrame."""
     try:
-        df = pd.read_csv(csv_path)
-        return df
+        return pd.read_csv(csv_path)
     except FileNotFoundError:
         return None
 
 hmdb_df = load_hmdb()
 
-# -------------------------
-# Metabolite search box
-# -------------------------
-st.sidebar.header("Search Metabolites")
-search_name = st.sidebar.text_input("Enter metabolite name")
+# ==========================
+# LOAD LACTATE CSV
+# ==========================
+@st.cache_data
+def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
+    try:
+        df = pd.read_csv(csv_path)
+        # Ensure required columns exist
+        if not all(col in df.columns for col in ["ppm", "intensity"]):
+            st.error("Lactate CSV must contain 'ppm' and 'intensity' columns.")
+            return None
+        return df
+    except FileNotFoundError:
+        st.error(f"Lactate CSV not found in '{csv_path}'.")
+        return None
 
-if search_name and hmdb_df is not None:
-    matches = hmdb_df[hmdb_df['Name'].str.contains(search_name, case=False, na=False)]
-    if not matches.empty:
-        st.subheader(f"Results for '{search_name}'")
-        for idx, row in matches.iterrows():
-            st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
-            st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
-            st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
-            st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
-            st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
-    else:
-        st.warning("No metabolite found with this name.")
+lactate_df = load_lactate()
 
 # ==========================
-# FUNCTIONS
+# PLOT FUNCTION WITH ZOOM
 # ==========================
-def estimate_j_coupling(ppm_list: list[float]) -> list[float]:
-    """Crude J-coupling estimator (placeholder)."""
-    return [np.nan for _ in ppm_list]
-
-def match_to_hmdb(sample_df: pd.DataFrame, hmdb_df: pd.DataFrame, tol: float = 0.02) -> pd.DataFrame:
-    """Match sample metabolite peak list to HMDB based on ppm proximity."""
-    results = []
-    sample_peaks = sample_df["ppm"].values
-
-    for _, row in hmdb_df.iterrows():
-        hmdb_peaks = [float(x) for x in str(row["ppm_list"]).split(";")]
-        matches = sum(any(abs(sp - hp) <= tol for hp in hmdb_peaks) for sp in sample_peaks)
-        score = matches / len(hmdb_peaks) if hmdb_peaks else 0
-        results.append({
-            "Metabolite": row["Name"],
-            "HMDB_ID": row["HMDB_ID"],
-            "CAS": row.get("CAS", ""),
-            "Formula": row.get("Formula", ""),
-            "Match score": round(score, 3),
-            "HMDB peaks": row["ppm_list"],
-            "Predicted peaks": row.get("predicted_ppm", ""),
-            "Structure": f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png",
-            "Link": f"https://hmdb.ca/metabolites/{row['HMDB_ID']}"
-        })
+def plot_spectrum(sample_df: pd.DataFrame, title="Spectrum", zoom_regions=None):
+    """
+    Plot NMR spectrum with optional zoom-ins.
     
-    results_df = pd.DataFrame(results)
-    return results_df.sort_values("Match score", ascending=False).reset_index(drop=True)
+    Parameters:
+        sample_df: DataFrame with 'ppm' and 'intensity' columns
+        title: title of the spectrum
+        zoom_regions: list of tuples [(ppm_min1, ppm_max1), (ppm_min2, ppm_max2)]
+    """
+    fig = plt.figure(figsize=(12, 4))
+    if zoom_regions:
+        gs = GridSpec(1, len(zoom_regions)+1, width_ratios=[2]+[1]*len(zoom_regions))
+    else:
+        gs = GridSpec(1, 1)
+    
+    # Sort by ppm descending
+    sample_df = sample_df.sort_values("ppm", ascending=False)
+    
+    # Main spectrum
+    ax_main = fig.add_subplot(gs[0])
+    ax_main.plot(sample_df["ppm"], sample_df["intensity"], color='blue', linewidth=1.5)
+    ax_main.set_xlabel("ppm")
+    ax_main.set_ylabel("Intensity")
+    ax_main.invert_xaxis()
+    ax_main.set_title(title)
+    ax_main.grid(True, linestyle='--', alpha=0.5)
+    
+    # Zoomed-in spectra
+    if zoom_regions:
+        for i, region in enumerate(zoom_regions):
+            ppm_min, ppm_max = region
+            ax_zoom = fig.add_subplot(gs[i+1])
+            mask = (sample_df["ppm"] >= ppm_min) & (sample_df["ppm"] <= ppm_max)
+            df_zoom = sample_df[mask]
+            ax_zoom.plot(df_zoom["ppm"], df_zoom["intensity"], color='green', linewidth=1.5)
+            ax_zoom.set_xlabel("ppm")
+            ax_zoom.set_title(f"Zoom {i+1}")
+            ax_zoom.invert_xaxis()
+            ax_zoom.grid(True, linestyle='--', alpha=0.5)
+            # Highlight zoom region on main spectrum
+            ax_main.axvspan(ppm_min, ppm_max, color='gray', alpha=0.2)
 
-def plot_spectrum(sample_df: pd.DataFrame, title="Spectrum") -> None:
-    """Plot simple stem NMR spectrum from ppm and intensity columns."""
-    if "intensity" not in sample_df.columns:
-        sample_df["intensity"] = 1  # default for display if no intensity
-    fig, ax = plt.subplots(figsize=(8, 3))
-    ax.stem(sample_df["ppm"], sample_df["intensity"], basefmt=" ", linefmt='C0-', markerfmt='C0o')
-    ax.set_xlabel("ppm")
-    ax.set_ylabel("Intensity")
-    ax.invert_xaxis()  # NMR convention
-    ax.set_title(title)
     st.pyplot(fig)
 
 # ==========================
@@ -85,14 +87,13 @@ def plot_spectrum(sample_df: pd.DataFrame, title="Spectrum") -> None:
 st.title("🧪 NMR Peak Extractor + HMDB Comparator")
 
 # -------------------------
-# EXPERIMENT METADATA
+# Experiment metadata
 # -------------------------
 st.sidebar.header("NMR Experiment Metadata")
 field_strength = st.sidebar.text_input("Magnetic Field Strength (MHz)", "600")
 pulse_seq = st.sidebar.text_input("Pulse Sequence", "90°")
 internal_std = st.sidebar.text_input("Internal Standard", "0.1 mM DSS")
 num_scans = st.sidebar.number_input("Number of Scans (NS)", value=256)
-st.sidebar.markdown("Add any other metadata in your CSV if needed.")
 
 st.write(f"**Field Strength:** {field_strength} MHz")
 st.write(f"**Pulse Sequence:** {pulse_seq}")
@@ -100,52 +101,29 @@ st.write(f"**Internal Standard:** {internal_std}")
 st.write(f"**Number of Scans:** {num_scans}")
 
 # -------------------------
-# FILE UPLOAD
+# Metabolite search
 # -------------------------
-uploaded_file = st.file_uploader("Upload your metabolite CSV", type=['csv'])
-if uploaded_file:
-    try:
-        sample_df = pd.read_csv(uploaded_file)
-    except Exception as e:
-        st.error(f"Error reading CSV file: {e}")
+st.sidebar.header("Search Metabolites")
+search_name = st.sidebar.text_input("Enter metabolite name")
+
+if search_name and hmdb_df is not None:
+    matches = hmdb_df[hmdb_df['Name'].str.contains(search_name, case=False, na=False)]
+    if not matches.empty:
+        st.subheader(f"Results for '{search_name}'")
+        for _, row in matches.iterrows():
+            st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
+            st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
+            st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
+            st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
+            st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
+
+        # Plot lactate spectrum if searched
+        if search_name.lower() == "lactate" and lactate_df is not None:
+            st.subheader(f"📊 Spectrum for '{search_name}'")
+            # Example zoom regions (adjust to your peak ppm ranges)
+            zoom_regions = [(4.04, 4.20), (1.25, 1.38)]
+            plot_spectrum(lactate_df, title=f"{search_name} Spectrum", zoom_regions=zoom_regions)
     else:
-        # Detect ppm column
-        possible_ppm_cols = ["ppm", "Shift", "Chemical Shift"]
-        ppm_col = next((c for c in sample_df.columns if c in possible_ppm_cols), None)
-        if ppm_col is None:
-            st.error("Uploaded CSV is missing required column: 'ppm' or equivalent ('Shift', 'Chemical Shift').")
-        else:
-            sample_df.rename(columns={ppm_col: "ppm"}, inplace=True)
-            st.subheader("📌 Sample Peaks")
-            st.dataframe(sample_df)
-
-            # Plot spectrum
-            st.subheader("📊 Spectrum")
-            plot_spectrum(sample_df)
-
-            # Estimate J values
-            st.subheader("📐 Estimated J-Couplings")
-            J_vals = estimate_j_coupling(sample_df["ppm"].values)
-            j_df = pd.DataFrame({"ppm": sample_df["ppm"], "estimated_J_Hz": J_vals})
-            st.dataframe(j_df)
-
-            # HMDB comparison
-            if hmdb_df is not None:
-                st.subheader("🔍 HMDB Comparison Results")
-                ppm_tol = st.sidebar.slider("Peak matching tolerance (ppm)", 0.005, 0.05, 0.02)
-                results_df = match_to_hmdb(sample_df, hmdb_df, tol=ppm_tol)
-
-                # Display table with clickable HMDB link
-                st.dataframe(results_df[["Metabolite", "HMDB_ID", "CAS", "Formula", "Match score", "HMDB peaks", "Predicted peaks"]])
-
-                # Display structure images for top hits
-                for idx, row in results_df.iterrows():
-                    st.markdown(f"### {row['Metabolite']} ({row['HMDB_ID']})")
-                    st.write(f"CAS: {row['CAS']}, Formula: {row['Formula']}")
-                    st.write(f"Match score: {row['Match score']}")
-                    st.write(f"HMDB peaks: {row['HMDB peaks']}")
-                    st.write(f"Predicted peaks: {row['Predicted peaks']}")
-                    st.markdown(f"[View on HMDB]({row['Link']})", unsafe_allow_html=True)
-                    st.image(row['Structure'], width=200)
-            else:
-                st.warning("⚠️ No local HMDB file found. Add `hmdb_reference.csv` to the app folder.")
+        st.warning(f"No metabolite found with the name '{search_name}'.")
+elif search_name:
+    st.warning("⚠️ No local HMDB file found. Add `hmdb_reference.csv` to the app folder.")
