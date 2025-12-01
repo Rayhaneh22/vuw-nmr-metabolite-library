@@ -103,7 +103,11 @@ if search_name and hmdb_df is not None:
         # Plot lactate spectrum if searched
         if search_name.lower() == "lactate" and lactate_df is not None:
             st.subheader(f"📊 Interactive Spectrum for '{search_name}'")
+            st.image("Data/Lactate_Formula.png", caption=f"Lactate (C3H6O3)", use_column_width=True)
+            
+            st.subheader(f"📊 Interactive Spectrum for '{search_name}'")
             plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
+
     else:
         st.warning(f"No metabolite found with the name '{search_name}'.")
 elif search_name:
