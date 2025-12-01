@@ -35,49 +35,40 @@ def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
 lactate_df = load_lactate()
 
 # ==========================
-# PLOT FUNCTION WITH ZOOM
+# PLOT FUNCTION WITH INTERACTIVE ZOOM
 # ==========================
-def plot_spectrum(sample_df: pd.DataFrame, title="Spectrum", zoom_regions=None):
+def plot_spectrum_zoom(sample_df: pd.DataFrame, title="Spectrum"):
     """
-    Plot NMR spectrum with optional zoom-ins.
-    
-    Parameters:
-        sample_df: DataFrame with 'ppm' and 'intensity' columns
-        title: title of the spectrum
-        zoom_regions: list of tuples [(ppm_min1, ppm_max1), (ppm_min2, ppm_max2)]
+    Plot NMR spectrum with interactive zoom using Streamlit sliders.
     """
-    fig = plt.figure(figsize=(12, 4))
-    if zoom_regions:
-        gs = GridSpec(1, len(zoom_regions)+1, width_ratios=[2]+[1]*len(zoom_regions))
-    else:
-        gs = GridSpec(1, 1)
-    
     # Sort by ppm descending
     sample_df = sample_df.sort_values("ppm", ascending=False)
+
+    st.subheader(title)
     
-    # Main spectrum
-    ax_main = fig.add_subplot(gs[0])
-    ax_main.plot(sample_df["ppm"], sample_df["intensity"], color='blue', linewidth=1.5)
-    ax_main.set_xlabel("ppm")
-    ax_main.set_ylabel("Intensity")
-    ax_main.invert_xaxis()
-    ax_main.set_title(title)
-    ax_main.grid(True, linestyle='--', alpha=0.5)
+    # Define ppm range for zoom sliders
+    ppm_min, ppm_max = sample_df["ppm"].min(), sample_df["ppm"].max()
     
-    # Zoomed-in spectra
-    if zoom_regions:
-        for i, region in enumerate(zoom_regions):
-            ppm_min, ppm_max = region
-            ax_zoom = fig.add_subplot(gs[i+1])
-            mask = (sample_df["ppm"] >= ppm_min) & (sample_df["ppm"] <= ppm_max)
-            df_zoom = sample_df[mask]
-            ax_zoom.plot(df_zoom["ppm"], df_zoom["intensity"], color='green', linewidth=1.5)
-            ax_zoom.set_xlabel("ppm")
-            ax_zoom.set_title(f"Zoom {i+1}")
-            ax_zoom.invert_xaxis()
-            ax_zoom.grid(True, linestyle='--', alpha=0.5)
-            # Highlight zoom region on main spectrum
-            ax_main.axvspan(ppm_min, ppm_max, color='gray', alpha=0.2)
+    # Streamlit sliders for zoom
+    zoom_min, zoom_max = st.slider(
+        "Select ppm range to zoom",
+        min_value=float(ppm_min),
+        max_value=float(ppm_max),
+        value=(float(ppm_min), float(ppm_max)),
+        step=0.001,
+        format="%.3f"
+    )
+
+    fig, ax = plt.subplots(figsize=(12, 4))
+    ax.plot(sample_df["ppm"], sample_df["intensity"], color='blue', linewidth=1.5)
+    ax.set_xlabel("ppm")
+    ax.set_ylabel("Intensity")
+    ax.set_title(title)
+    ax.invert_xaxis()
+    ax.grid(True, linestyle='--', alpha=0.5)
+
+    # Apply zoom
+    ax.set_xlim(zoom_max, zoom_min)  # inverted x-axis
 
     st.pyplot(fig)
 
@@ -120,9 +111,7 @@ if search_name and hmdb_df is not None:
         # Plot lactate spectrum if searched
         if search_name.lower() == "lactate" and lactate_df is not None:
             st.subheader(f"📊 Spectrum for '{search_name}'")
-            # Example zoom regions (adjust to your peak ppm ranges)
-            zoom_regions = [(4.04, 4.20), (1.25, 1.38)]
-            plot_spectrum(lactate_df, title=f"{search_name} Spectrum", zoom_regions=zoom_regions)
+            plot_spectrum_zoom(lactate_df, title=f"{search_name} Spectrum")
     else:
         st.warning(f"No metabolite found with the name '{search_name}'.")
 elif search_name:
