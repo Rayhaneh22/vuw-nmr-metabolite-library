@@ -37,13 +37,25 @@ lactate_df = load_lactate()
 # PLOT FUNCTION
 # ==========================
 def plot_spectrum(sample_df: pd.DataFrame, title="Spectrum"):
-    fig, ax = plt.subplots(figsize=(8, 3))
-    ax.stem(sample_df["ppm"], sample_df["intensity"], basefmt=" ", linefmt='C0-', markerfmt='C0o')
+    fig, ax = plt.subplots(figsize=(10, 4))
+    
+    # Sort by ppm descending (NMR convention)
+    sample_df = sample_df.sort_values("ppm", ascending=False)
+    
+    # Plot line
+    ax.plot(sample_df["ppm"], sample_df["intensity"], color='blue', linewidth=1.5)
+    
+    # Optional: add small markers at each data point
+    ax.scatter(sample_df["ppm"], sample_df["intensity"], color='red', s=10)
+    
     ax.set_xlabel("ppm")
     ax.set_ylabel("Intensity")
-    ax.invert_xaxis()
+    ax.invert_xaxis()  # NMR spectra usually plotted with decreasing ppm
     ax.set_title(title)
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
     st.pyplot(fig)
+
 
 # ==========================
 # STREAMLIT UI
