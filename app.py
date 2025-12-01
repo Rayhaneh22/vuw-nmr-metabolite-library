@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
+import plotly.graph_objects as go
 import os
 
 # ==========================
@@ -35,42 +34,35 @@ def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
 lactate_df = load_lactate()
 
 # ==========================
-# PLOT FUNCTION WITH INTERACTIVE ZOOM
+# PLOT FUNCTION WITH PLOTLY (INTERACTIVE)
 # ==========================
-def plot_spectrum_zoom(sample_df: pd.DataFrame, title="Spectrum"):
+def plot_spectrum_interactive(sample_df: pd.DataFrame, title="Spectrum"):
     """
-    Plot NMR spectrum with interactive zoom using Streamlit sliders.
+    Interactive NMR spectrum using Plotly: supports pan, zoom, hover.
     """
-    # Sort by ppm descending
     sample_df = sample_df.sort_values("ppm", ascending=False)
-
-    st.subheader(title)
     
-    # Define ppm range for zoom sliders
-    ppm_min, ppm_max = sample_df["ppm"].min(), sample_df["ppm"].max()
-    
-    # Streamlit sliders for zoom
-    zoom_min, zoom_max = st.slider(
-        "Select ppm range to zoom",
-        min_value=float(ppm_min),
-        max_value=float(ppm_max),
-        value=(float(ppm_min), float(ppm_max)),
-        step=0.001,
-        format="%.3f"
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=sample_df["ppm"],
+            y=sample_df["intensity"],
+            mode='lines',
+            line=dict(color='blue', width=2),
+            name='Intensity'
+        )
     )
 
-    fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(sample_df["ppm"], sample_df["intensity"], color='blue', linewidth=1.5)
-    ax.set_xlabel("ppm")
-    ax.set_ylabel("Intensity")
-    ax.set_title(title)
-    ax.invert_xaxis()
-    ax.grid(True, linestyle='--', alpha=0.5)
-
-    # Apply zoom
-    ax.set_xlim(zoom_max, zoom_min)  # inverted x-axis
-
-    st.pyplot(fig)
+    # Layout
+    fig.update_layout(
+        title=title,
+        xaxis=dict(title='ppm', autorange='reversed'),  # NMR style: high ppm left
+        yaxis=dict(title='Intensity'),
+        hovermode='x unified',
+        height=500
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
 
 # ==========================
 # STREAMLIT UI
@@ -110,8 +102,8 @@ if search_name and hmdb_df is not None:
 
         # Plot lactate spectrum if searched
         if search_name.lower() == "lactate" and lactate_df is not None:
-            st.subheader(f"📊 Spectrum for '{search_name}'")
-            plot_spectrum_zoom(lactate_df, title=f"{search_name} Spectrum")
+            st.subheader(f"📊 Interactive Spectrum for '{search_name}'")
+            plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
     else:
         st.warning(f"No metabolite found with the name '{search_name}'.")
 elif search_name:
