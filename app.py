@@ -95,8 +95,8 @@ if search_name and hmdb_df is not None:
         st.subheader(f"Results for '{search_name}'")
         for _, row in matches.iterrows():
             st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
-            st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
-            st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
+            
+           
             # HMDB link + structure
 st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
 st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
