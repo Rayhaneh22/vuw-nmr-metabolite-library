@@ -155,3 +155,56 @@ if search_name and hmdb_df is not None:
         """
     )
 
+# -------------------------
+# Creatine formula + spectrum
+# -------------------------
+if search_name.lower() == "creatine":
+    # Load creatine CSV
+    @st.cache_data
+    def load_creatine(csv_path: str = "Data/creatine.csv") -> pd.DataFrame | None:
+        try:
+            df = pd.read_csv(csv_path)
+            if not all(col in df.columns for col in ["ppm", "intensity"]):
+                st.error("Creatine CSV must contain 'ppm' and 'intensity' columns.")
+                return None
+            return df
+        except FileNotFoundError:
+            st.error(f"Creatine CSV not found in '{csv_path}'.")
+            return None
+
+    creatine_df = load_creatine()
+
+    if creatine_df is not None:
+        st.subheader("📊 Creatine Formula & Spectrum")
+
+        col1, col2 = st.columns([1, 2])
+
+        # Column 1: Formula image
+        with col1:
+            img_path = "Data/Creatine.jpg"
+            if os.path.exists(img_path):
+                st.image(
+                    img_path,
+                    caption="Creatine (C4H9N3O2)",
+                    use_column_width=True
+                )
+            else:
+                st.warning(f"⚠️ Formula image not found at '{img_path}'")
+
+        # Column 2: Interactive spectrum
+        with col2:
+            plot_spectrum_interactive(creatine_df, title="Creatine Spectrum")
+
+        # ---- Links ----
+        st.markdown(
+            """
+            🔗 **NMR Prediction (NMRdb):**  
+            https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
+            """
+        )
+        st.markdown(
+            """
+            🔗 **HMDB 1D NMR Spectrum:**  
+            https://hmdb.ca/spectra/nmr_one_d/1064
+            """
+        )
