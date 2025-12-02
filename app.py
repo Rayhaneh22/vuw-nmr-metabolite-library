@@ -97,8 +97,28 @@ if search_name and hmdb_df is not None:
             st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
             st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
             st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
-            st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
-            st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
+            # HMDB link + structure
+st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
+st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
+
+# ==========================
+# NMRdb Prediction Link
+# ==========================
+smiles = row.get("SMILES", "")
+
+if smiles and isinstance(smiles, str) and smiles.strip() != "":
+    nmrdb_url = (
+        "https://www.nmrdb.org/new_predictor/index.shtml?"
+        f"v=v2.173.0&smiles={smiles}"
+    )
+    st.markdown(
+        f"<a href='{nmrdb_url}' target='_blank' style='font-size:16px; color:#1E90FF;'>"
+        "🔮 Predict Spectrum on NMRdb</a>",
+        unsafe_allow_html=True
+    )
+else:
+    st.warning("⚠️ No SMILES available for NMRdb prediction.")
+
 
 # -------------------------
 # Lactate formula + spectrum
@@ -111,7 +131,7 @@ if search_name.lower() == "lactate" and lactate_df is not None:
 
     # Column 1: Formula image (safe check)
     with col1:
-        img_path = "Data/lactate_formula.png"  # check exact filename and case
+        img_path = "Data/Lactate_Formula.png"  # check exact filename and case
         if os.path.exists(img_path):
             st.image(
                 img_path,
