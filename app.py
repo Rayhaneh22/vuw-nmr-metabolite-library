@@ -117,7 +117,7 @@ if search_name == "lactate" and lactate_df is not None:
     with col1:
         img_path = "Data/Lactic_acid.png"
         if os.path.exists(img_path):
-            st.image(img_path, caption="Lactic Acid (C3H6O3)", width=500)  # fixed width
+            st.image(img_path, caption="Lactic Acid (C3H6O3)", width=200)  # fixed width
         else:
             st.warning(f"⚠️ Formula image not found at '{img_path}'")
     with col2:
