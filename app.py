@@ -93,20 +93,24 @@ sample_pH = st.sidebar.text_input("Sample pH", "")
 buffer_used = st.sidebar.text_input("Buffer", "")
 relax_delay = st.sidebar.text_input("Relaxation Delay (s)", "2.0")
 
-st.markdown(f"""
-<div style="background-color:#f0f8ff; padding:15px; border-radius:10px;">
-    <h4 style="color:#1f77b4; margin-bottom:5px;">Experiment Metadata</h4>
-    <p style="margin:2px;"><b>Field Strength:</b> {field_strength} MHz</p>
-    <p style="margin:2px;"><b>Pulse Sequence:</b> {pulse_seq}</p>
-    <p style="margin:2px;"><b>Internal Standard:</b> {internal_std}</p>
-    <p style="margin:2px;"><b>Number of Scans:</b> {num_scans}</p>
-    <p style="margin:2px;"><b>Water Suppression:</b> {water_supp}</p>
-    <p style="margin:2px;"><b>Solvent:</b> {solvent}</p>
-    <p style="margin:2px;"><b>Sample pH:</b> {sample_pH}</p>
-    <p style="margin:2px;"><b>Buffer:</b> {buffer_used}</p>
-    <p style="margin:2px;"><b>Relaxation Delay:</b> {relax_delay} s</p>
-</div>
-""", unsafe_allow_html=True)
+# -------------------------
+# Display Experiment Metadata in a tidy line format
+# -------------------------
+st.markdown("### 🧪 Experiment Metadata")
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown(f"**Field Strength:** {field_strength} MHz")
+    st.markdown(f"**Pulse Sequence:** {pulse_seq}")
+    st.markdown(f"**Internal Standard:** {internal_std}")
+with col2:
+    st.markdown(f"**Number of Scans:** {num_scans}")
+    st.markdown(f"**Water Suppression:** {water_supp}")
+    st.markdown(f"**Solvent:** {solvent}")
+with col3:
+    st.markdown(f"**pH:** {sample_pH}")
+    st.markdown(f"**Buffer:** {buffer_used}")
+    st.markdown(f"**Relaxation Delay:** {relax_delay} s")
 
 
 # -------------------------
