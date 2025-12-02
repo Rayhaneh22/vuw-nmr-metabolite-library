@@ -111,7 +111,8 @@ with col3:
     st.markdown(f"**pH:** {sample_pH}")
     st.markdown(f"**Buffer:** {buffer_used}")
     st.markdown(f"**Relaxation Delay:** {relax_delay} s")
-
+# Add a horizontal line separator
+st.markdown("---")
 
 # -------------------------
 # Metabolite search
