@@ -22,7 +22,6 @@ hmdb_df = load_hmdb()
 def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
     try:
         df = pd.read_csv(csv_path)
-        # Ensure required columns exist
         if not all(col in df.columns for col in ["ppm", "intensity"]):
             st.error("Lactate CSV must contain 'ppm' and 'intensity' columns.")
             return None
@@ -34,14 +33,27 @@ def load_lactate(csv_path: str = "Data/lactate.csv") -> pd.DataFrame | None:
 lactate_df = load_lactate()
 
 # ==========================
+# LOAD CREATINE CSV
+# ==========================
+@st.cache_data
+def load_creatine(csv_path="Data/creatine.csv") -> pd.DataFrame | None:
+    try:
+        df = pd.read_csv(csv_path)
+        if not all(col in df.columns for col in ["ppm", "intensity"]):
+            st.error("Creatine CSV must contain 'ppm' and 'intensity' columns.")
+            return None
+        return df
+    except FileNotFoundError:
+        st.error(f"Creatine CSV not found in '{csv_path}'.")
+        return None
+
+creatine_df = load_creatine()
+
+# ==========================
 # PLOT FUNCTION WITH PLOTLY (INTERACTIVE)
 # ==========================
 def plot_spectrum_interactive(sample_df: pd.DataFrame, title="Spectrum"):
-    """
-    Interactive NMR spectrum using Plotly: supports pan, zoom, hover.
-    """
     sample_df = sample_df.sort_values("ppm", ascending=False)
-    
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
@@ -52,16 +64,13 @@ def plot_spectrum_interactive(sample_df: pd.DataFrame, title="Spectrum"):
             name='Intensity'
         )
     )
-
-    # Layout
     fig.update_layout(
         title=title,
-        xaxis=dict(title='ppm', autorange='reversed'),  # NMR style: high ppm left
+        xaxis=dict(title='ppm', autorange='reversed'),
         yaxis=dict(title='Intensity'),
         hovermode='x unified',
         height=500
     )
-    
     st.plotly_chart(fig, use_container_width=True)
 
 # ==========================
@@ -69,7 +78,6 @@ def plot_spectrum_interactive(sample_df: pd.DataFrame, title="Spectrum"):
 # ==========================
 st.title("🧪 NMR Peak Extractor + HMDB Comparator")
 
-# -------------------------
 # -------------------------
 # Experiment metadata
 # -------------------------
@@ -79,15 +87,12 @@ field_strength = st.sidebar.text_input("Magnetic Field Strength (MHz)", "600")
 pulse_seq = st.sidebar.text_input("Pulse Sequence", "90°")
 internal_std = st.sidebar.text_input("Internal Standard", "0.1 mM DSS")
 num_scans = st.sidebar.number_input("Number of Scans (NS)", value=256)
-
-# ---- Added metadata ----
 water_supp = st.sidebar.text_input("Water Suppression Method", "WATERGATE")
 solvent = st.sidebar.text_input("Solvent", "D2O")
 sample_pH = st.sidebar.text_input("Sample pH", "")
 buffer_used = st.sidebar.text_input("Buffer", "")
 relax_delay = st.sidebar.text_input("Relaxation Delay (s)", "2.0")
 
-# ---- Display metadata ----
 st.write(f"**Field Strength:** {field_strength} MHz")
 st.write(f"**Pulse Sequence:** {pulse_seq}")
 st.write(f"**Internal Standard:** {internal_std}")
@@ -102,36 +107,23 @@ st.write(f"**Relaxation Delay:** {relax_delay} s")
 # Metabolite search
 # -------------------------
 st.sidebar.header("Search Metabolites")
-search_name = st.sidebar.text_input("Enter metabolite name")
+search_name = st.sidebar.text_input("Enter metabolite name").lower()
 
-if search_name and hmdb_df is not None:
-    matches = hmdb_df[hmdb_df['Name'].str.contains(search_name, case=False, na=False)]
-    if not matches.empty:
-        st.subheader(f"Results for '{search_name}'")
-       
-            
-           
-
-
-# -------------------------
-# Lactate formula + spectrum
-# -------------------------
-if search_name.lower() == "lactate" and lactate_df is not None:
-
+# ==========================
+# Display Lactate
+# ==========================
+if search_name == "lactate" and lactate_df is not None:
     col1, col2 = st.columns([1, 2])
-
-    # Column 1: Formula image
+    # Formula image
     with col1:
         img_path = "Data/Lactic_acid.png"
         if os.path.exists(img_path):
             st.image(img_path, caption="Lactic Acid (C3H6O3)", use_column_width=True)
         else:
             st.warning(f"⚠️ Formula image not found at '{img_path}'")
-
-    # Column 2: spectrum
+    # Spectrum
     with col2:
         plot_spectrum_interactive(lactate_df, title="Lactate Spectrum")
-
     st.markdown("""
     🔗 **NMR Prediction:**  
     https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
@@ -141,33 +133,26 @@ if search_name.lower() == "lactate" and lactate_df is not None:
     https://hmdb.ca/metabolites/HMDB0000190
     """)
 
-
-# -------------------------
-# Creatine formula + spectrum
-# -------------------------
-# Lactate formula + spectrum
-# -------------------------
-if search_name.lower() == "Creatine" and lactate_df is not None:
-
+# ==========================
+# Display Creatine
+# ==========================
+if search_name == "creatine" and creatine_df is not None:
     col1, col2 = st.columns([1, 2])
-
-    # Column 1: Formula image
+    # Formula image
     with col1:
         img_path = "Data/Creatine.jpg"
         if os.path.exists(img_path):
-            st.image(img_path, caption="Creatine (C3H6O3)", use_column_width=True)
+            st.image(img_path, caption="Creatine (C4H9N3O2)", use_column_width=True)
         else:
             st.warning(f"⚠️ Formula image not found at '{img_path}'")
-
-    # Column 2: spectrum
+    # Spectrum
     with col2:
-        plot_spectrum_interactive(lactate_df, title="Creatine Spectrum")
-
-        st.markdown("""
-        🔗 **NMR Prediction:**  
-        https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
-        """)
-        st.markdown("""
-        🔗 **HMDB 1D NMR Spectrum:**  
-        https://hmdb.ca/spectra/nmr_one_d/1064
-        """)
+        plot_spectrum_interactive(creatine_df, title="Creatine Spectrum")
+    st.markdown("""
+    🔗 **NMR Prediction:**  
+    https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
+    """)
+    st.markdown("""
+    🔗 **HMDB 1D NMR Spectrum:**  
+    https://hmdb.ca/spectra/nmr_one_d/1064
+    """)
