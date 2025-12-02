@@ -123,7 +123,7 @@ if search_name == "lactate" and lactate_df is not None:
                 st.warning(f"⚠️ Formula image not found at '{img_path}'")
         # Spectrum
         with col2:
-            plot_spectrum_interactive(lactate_df, title="Lactate Spectrum")
+            plot_spectrum_interactive(lactate_df)
     st.markdown("""
     🔗 **NMR Prediction:**  
     https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
