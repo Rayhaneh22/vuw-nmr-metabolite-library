@@ -145,38 +145,23 @@ if search_name.lower() == "lactate" and lactate_df is not None:
 # -------------------------
 # Creatine formula + spectrum
 # -------------------------
-if search_name.lower() == "Creatine":
+# Lactate formula + spectrum
+# -------------------------
+if search_name.lower() == "Creatine" and lactate_df is not None:
 
-    @st.cache_data
-    def load_creatine(csv_path: str = "Data/Creatine.csv") -> pd.DataFrame | None:
-        try:
-            df = pd.read_csv(csv_path)
-            if not all(col in df.columns for col in ["ppm", "intensity"]):
-                st.error("Creatine CSV must contain 'ppm' and 'intensity' columns.")
-                return None
-            return df
-        except FileNotFoundError:
-            st.error(f"Creatine CSV not found in '{csv_path}'.")
-            return None
+    col1, col2 = st.columns([1, 2])
 
-    creatine_df = load_creatine()
+    # Column 1: Formula image
+    with col1:
+        img_path = "Data/Creatine.jpg"
+        if os.path.exists(img_path):
+            st.image(img_path, caption="Creatine (C3H6O3)", use_column_width=True)
+        else:
+            st.warning(f"⚠️ Formula image not found at '{img_path}'")
 
-    if creatine_df is not None:
-        st.subheader("📊 Creatine Formula & Spectrum")
-
-        col1, col2 = st.columns([1, 2])
-
-        # Column 1
-        with col1:
-            img_path = "Data/creatine.jpg"
-            if os.path.exists(img_path):
-                st.image(img_path, caption="Creatine (C4H9N3O2)", use_column_width=True)
-            else:
-                st.warning(f"⚠️ Formula image not found at '{img_path}'")
-
-        # Column 2
-        with col2:
-            plot_spectrum_interactive(creatine_df, title="Creatine Spectrum")
+    # Column 2: spectrum
+    with col2:
+        plot_spectrum_interactive(lactate_df, title="Creatine Spectrum")
 
         st.markdown("""
         🔗 **NMR Prediction:**  
