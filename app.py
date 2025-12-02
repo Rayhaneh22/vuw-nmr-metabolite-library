@@ -104,7 +104,6 @@ st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 # ==========================
 
 
-
 # -------------------------
 # Lactate formula + spectrum
 # -------------------------
@@ -130,11 +129,17 @@ if search_name.lower() == "lactate" and lactate_df is not None:
     with col2:
         plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
 
-    # ---- Add NMR Prediction Link (ONLY FOR LACTATE) ----
+    # ---- Add links below the spectrum (ONLY FOR LACTATE) ----
     st.markdown(
         """
         🔗 **NMR Prediction (NMRdb):**  
         https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
+        """
+    )
+    st.markdown(
+        """
+        🔗 **View on HMDB:**  
+        https://hmdb.ca/metabolites/HMDB0000190
         """
     )
 
