@@ -102,22 +102,7 @@ st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
 st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 
 # ==========================
-# NMRdb Prediction Link
-# ==========================
-smiles = row.get("SMILES", "")
 
-if smiles and isinstance(smiles, str) and smiles.strip() != "":
-    nmrdb_url = (
-        "https://www.nmrdb.org/new_predictor/index.shtml?"
-        f"v=v2.173.0&smiles={smiles}"
-    )
-    st.markdown(
-        f"<a href='{nmrdb_url}' target='_blank' style='font-size:16px; color:#1E90FF;'>"
-        "🔮 Predict Spectrum on NMRdb</a>",
-        unsafe_allow_html=True
-    )
-else:
-    st.warning("⚠️ No SMILES available for NMRdb prediction.")
 
 
 # -------------------------
