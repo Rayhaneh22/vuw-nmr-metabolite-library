@@ -104,8 +104,8 @@ if search_name and hmdb_df is not None:
 # -------------------------
 # Lactate formula + spectrum
 # -------------------------
-if search_name.lower() == "lactate" and lactate_df is not None:
-    st.subheader(f"📊 Lactate Formula & Spectrum")
+# if search_name.lower() == "lactate" and lactate_df is not None:
+#     st.subheader(f"📊 Lactate Formula & Spectrum")
 
     # Create two columns
     col1, col2 = st.columns([1, 2])  # formula smaller, spectrum larger
