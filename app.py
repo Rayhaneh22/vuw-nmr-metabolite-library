@@ -158,10 +158,10 @@ if search_name and hmdb_df is not None:
 # -------------------------
 # Creatine formula + spectrum
 # -------------------------
-if search_name.lower() == "creatine":
+if search_name.lower() == "Creatine":
     # Load creatine CSV
     @st.cache_data
-    def load_creatine(csv_path: str = "Data/creatine.csv") -> pd.DataFrame | None:
+    def load_creatine(csv_path: str = "Data/Creatine.csv") -> pd.DataFrame | None:
         try:
             df = pd.read_csv(csv_path)
             if not all(col in df.columns for col in ["ppm", "intensity"]):
