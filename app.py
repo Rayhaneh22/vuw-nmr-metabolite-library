@@ -97,6 +97,17 @@ if search_name and hmdb_df is not None:
             st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
             st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
             st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
+
+            # ==========================
+            # NMRdb PREDICTOR INTEGRATION
+            # ==========================
+            smiles = row.get("SMILES", "")
+            if smiles:
+                nmrdb_url = f"https://www.nmrdb.org/new_predictor/index.shtml?smiles={smiles}&v=v2.173.0"
+                st.markdown(f"[🔮 Predict Spectrum on NMRdb]({nmrdb_url})")
+            else:
+                st.info("No SMILES available for NMRdb prediction.")
+
             st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
             st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 
