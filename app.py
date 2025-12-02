@@ -97,9 +97,7 @@ if search_name and hmdb_df is not None:
             st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
             
            
-            # HMDB link + structure
-st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
-st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
+
 
 # ==========================
 
