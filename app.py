@@ -126,12 +126,12 @@ else:
 if search_name.lower() == "lactate" and lactate_df is not None:
     st.subheader(f"📊 Lactate Formula & Spectrum")
 
-    # Create two columns (formula smaller, spectrum larger)
-    col1, col2 = st.columns([1, 2])
+    # Create two columns
+    col1, col2 = st.columns([1, 2])  # formula smaller, spectrum larger
 
-    # Column 1: Formula image (safe check)
+    # Column 1: Formula image
     with col1:
-        img_path = "Data/Lactate_Formula.png"  # check exact filename and case
+        img_path = "Data/lactate_formula.png"
         if os.path.exists(img_path):
             st.image(
                 img_path,
@@ -144,3 +144,12 @@ if search_name.lower() == "lactate" and lactate_df is not None:
     # Column 2: Interactive Plotly spectrum
     with col2:
         plot_spectrum_interactive(lactate_df, title=f"{search_name} Spectrum")
+
+    # ---- Add NMR Prediction Link (ONLY FOR LACTATE) ----
+    st.markdown(
+        """
+        🔗 **NMR Prediction (NMRdb):**  
+        https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
+        """
+    )
+
