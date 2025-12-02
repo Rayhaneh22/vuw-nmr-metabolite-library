@@ -131,7 +131,7 @@ if search_name.lower() == "lactate" and lactate_df is not None:
 
     # Column 1: Formula image
     with col1:
-        img_path = "Data/lactate_formula.png"
+        img_path = "Data/Lactate_Formula.png"
         if os.path.exists(img_path):
             st.image(
                 img_path,
