@@ -97,17 +97,6 @@ if search_name and hmdb_df is not None:
             st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
             st.write(f"CAS: {row.get('CAS','')}, Formula: {row.get('Formula','')}")
             st.write(f"Predicted peaks: {row.get('predicted_ppm','')}")
-
-            # ==========================
-            # NMRdb PREDICTOR INTEGRATION
-            # ==========================
-            smiles = row.get("SMILES", "")
-            if smiles:
-                nmrdb_url = f"https://www.nmrdb.org/new_predictor/index.shtml?smiles={smiles}&v=v2.173.0"
-                st.markdown(f"[🔮 Predict Spectrum on NMRdb]({nmrdb_url})")
-            else:
-                st.info("No SMILES available for NMRdb prediction.")
-
             st.markdown(f"[View on HMDB](https://hmdb.ca/metabolites/{row['HMDB_ID']})")
             st.image(f"https://hmdb.ca/metabolites/{row['HMDB_ID']}.png", width=200)
 
@@ -115,14 +104,14 @@ if search_name and hmdb_df is not None:
 # Lactate formula + spectrum
 # -------------------------
 if search_name.lower() == "lactate" and lactate_df is not None:
-    st.subheader(f"📊 Lactate Acid (CAS: 50-21-5)")
+    st.subheader(f"📊 Lactate Formula & Spectrum")
 
     # Create two columns (formula smaller, spectrum larger)
     col1, col2 = st.columns([1, 2])
 
     # Column 1: Formula image (safe check)
     with col1:
-        img_path = "Data/Lactate_Formula.png"  # check exact filename and case
+        img_path = "Data/lactate_formula.png"  # check exact filename and case
         if os.path.exists(img_path):
             st.image(
                 img_path,
