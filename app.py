@@ -112,11 +112,11 @@ if search_name and hmdb_df is not None:
 
     # Column 1: Formula image
     with col1:
-        img_path = "Data/Lactate_acid.png"
+        img_path = "Data/LactIC_acid.png"
         if os.path.exists(img_path):
             st.image(
                 img_path,
-                caption="Lactate (C3H6O3)",
+                caption="LactIC_acid (C3H6O3)",
                 use_column_width=True
             )
         else:
