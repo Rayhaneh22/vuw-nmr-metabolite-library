@@ -70,18 +70,33 @@ def plot_spectrum_interactive(sample_df: pd.DataFrame, title="Spectrum"):
 st.title("🧪 NMR Peak Extractor + HMDB Comparator")
 
 # -------------------------
+# -------------------------
 # Experiment metadata
 # -------------------------
 st.sidebar.header("NMR Experiment Metadata")
+
 field_strength = st.sidebar.text_input("Magnetic Field Strength (MHz)", "600")
 pulse_seq = st.sidebar.text_input("Pulse Sequence", "90°")
 internal_std = st.sidebar.text_input("Internal Standard", "0.1 mM DSS")
 num_scans = st.sidebar.number_input("Number of Scans (NS)", value=256)
 
+# ---- Added metadata ----
+water_supp = st.sidebar.text_input("Water Suppression Method", "WATERGATE")
+solvent = st.sidebar.text_input("Solvent", "D2O")
+sample_pH = st.sidebar.text_input("Sample pH", "")
+buffer_used = st.sidebar.text_input("Buffer", "")
+relax_delay = st.sidebar.text_input("Relaxation Delay (s)", "2.0")
+
+# ---- Display metadata ----
 st.write(f"**Field Strength:** {field_strength} MHz")
 st.write(f"**Pulse Sequence:** {pulse_seq}")
 st.write(f"**Internal Standard:** {internal_std}")
 st.write(f"**Number of Scans:** {num_scans}")
+st.write(f"**Water Suppression:** {water_supp}")
+st.write(f"**Solvent:** {solvent}")
+st.write(f"**pH:** {sample_pH}")
+st.write(f"**Buffer:** {buffer_used}")
+st.write(f"**Relaxation Delay:** {relax_delay} s")
 
 # -------------------------
 # Metabolite search
