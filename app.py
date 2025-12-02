@@ -93,8 +93,7 @@ if search_name and hmdb_df is not None:
     matches = hmdb_df[hmdb_df['Name'].str.contains(search_name, case=False, na=False)]
     if not matches.empty:
         st.subheader(f"Results for '{search_name}'")
-        for _, row in matches.iterrows():
-            st.markdown(f"### {row['Name']} ({row['HMDB_ID']})")
+       
             
            
 
