@@ -112,7 +112,7 @@ if search_name and hmdb_df is not None:
 
     # Column 1: Formula image
     with col1:
-        img_path = "Data/Lactate-acid.png"
+        img_path = "Data/Lactate_acid.png"
         if os.path.exists(img_path):
             st.image(
                 img_path,
