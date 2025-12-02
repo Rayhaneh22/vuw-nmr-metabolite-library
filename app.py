@@ -108,22 +108,22 @@ st.write(f"**Relaxation Delay:** {relax_delay} s")
 # -------------------------
 st.sidebar.header("Search Metabolites")
 search_name = st.sidebar.text_input("Enter metabolite name").lower()
-
 # ==========================
 # Display Lactate
 # ==========================
 if search_name == "lactate" and lactate_df is not None:
-    col1, col2 = st.columns([1, 2])
-    # Formula image
-    with col1:
-        img_path = "Data/Lactic_acid.png"
-        if os.path.exists(img_path):
-            st.image(img_path, caption="Lactic Acid (C3H6O3)", use_column_width=True)
-        else:
-            st.warning(f"⚠️ Formula image not found at '{img_path}'")
-    # Spectrum
-    with col2:
-        plot_spectrum_interactive(lactate_df, title="Lactate Spectrum")
+    with st.container():
+        col1, col2 = st.columns([1, 2])
+        # Formula image
+        with col1:
+            img_path = "Data/Lactic_acid.png"
+            if os.path.exists(img_path):
+                st.image(img_path, caption="Lactic Acid (C3H6O3)", use_column_width=True)
+            else:
+                st.warning(f"⚠️ Formula image not found at '{img_path}'")
+        # Spectrum
+        with col2:
+            plot_spectrum_interactive(lactate_df, title="Lactate Spectrum")
     st.markdown("""
     🔗 **NMR Prediction:**  
     https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
@@ -137,17 +137,18 @@ if search_name == "lactate" and lactate_df is not None:
 # Display Creatine
 # ==========================
 if search_name == "creatine" and creatine_df is not None:
-    col1, col2 = st.columns([1, 2])
-    # Formula image
-    with col1:
-        img_path = "Data/creatine.jpg"
-        if os.path.exists(img_path):
-            st.image(img_path, caption="creatine (C4H9N3O2)", use_column_width=True)
-        else:
-            st.warning(f"⚠️ Formula image not found at '{img_path}'")
-    # Spectrum
-    with col2:
-        plot_spectrum_interactive(creatine_df, title="creatine Spectrum")
+    with st.container():
+        col1, col2 = st.columns([1, 2])
+        # Formula image
+        with col1:
+            img_path = "Data/creatine.jpg"
+            if os.path.exists(img_path):
+                st.image(img_path, caption="Creatine (C4H9N3O2)", use_column_width=True)
+            else:
+                st.warning(f"⚠️ Formula image not found at '{img_path}'")
+        # Spectrum
+        with col2:
+            plot_spectrum_interactive(creatine_df, title="Creatine Spectrum")
     st.markdown("""
     🔗 **NMR Prediction:**  
     https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
