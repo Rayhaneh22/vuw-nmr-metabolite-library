@@ -40,11 +40,11 @@ def load_creatine(csv_path="Data/creatine.csv") -> pd.DataFrame | None:
     try:
         df = pd.read_csv(csv_path)
         if not all(col in df.columns for col in ["ppm", "intensity"]):
-            st.error("Creatine CSV must contain 'ppm' and 'intensity' columns.")
+            st.error("creatine CSV must contain 'ppm' and 'intensity' columns.")
             return None
         return df
     except FileNotFoundError:
-        st.error(f"Creatine CSV not found in '{csv_path}'.")
+        st.error(f"creatine CSV not found in '{csv_path}'.")
         return None
 
 creatine_df = load_creatine()
@@ -140,14 +140,14 @@ if search_name == "creatine" and creatine_df is not None:
     col1, col2 = st.columns([1, 2])
     # Formula image
     with col1:
-        img_path = "Data/Creatine.jpg"
+        img_path = "Data/creatine.jpg"
         if os.path.exists(img_path):
-            st.image(img_path, caption="Creatine (C4H9N3O2)", use_column_width=True)
+            st.image(img_path, caption="creatine (C4H9N3O2)", use_column_width=True)
         else:
             st.warning(f"⚠️ Formula image not found at '{img_path}'")
     # Spectrum
     with col2:
-        plot_spectrum_interactive(creatine_df, title="Creatine Spectrum")
+        plot_spectrum_interactive(creatine_df, title="creatine Spectrum")
     st.markdown("""
     🔗 **NMR Prediction:**  
     https://www.nmrdb.org/new_predictor/index.shtml?v=v2.173.0
